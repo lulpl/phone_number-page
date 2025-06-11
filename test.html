@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机手机号码展示器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            margin-top: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        h1 {
+            color: #1a2a6c;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .subtitle {
+            color: #555;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 15px;
+        }
+        
+        .btn {
+            background: linear-gradient(to right, #1a2a6c, #b21f1f);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-weight: 600;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.25);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .counter {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 0 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: linear-gradient(to right, #1a2a6c, #2c3e50);
+            color: white;
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tr:hover {
+            background-color: #edf2ff;
+            transition: background-color 0.2s;
+        }
+        
+        .number-cell {
+            font-weight: 600;
+            color: #1a2a6c;
+        }
+        
+        .level-0 { background-color: #f0f5ff; }
+        .level-1 { background-color: #e6f7ff; }
+        .level-2 { background-color: #e6ffed; }
+        .level-3 { background-color: #fff7e6; }
+        
+        .level-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .level-0 .level-badge { background-color: #d6e4ff; color: #1a2a6c; }
+        .level-1 .level-badge { background-color: #bae7ff; color: #0050b3; }
+        .level-2 .level-badge { background-color: #b7eb8f; color: #237804; }
+        .level-3 .level-badge { background-color: #ffd591; color: #ad4e00; }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: linear-gradient(to right, #1a2a6c, #2c3e50);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            padding: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            th, td {
+                padding: 12px 8px;
+                font-size: 0.9rem;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .counter {
+                margin-top: 10px;
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>手机号码随机展示器</h1>
+            <p class="subtitle">每次点击按钮随机显示10个手机号码及其相关信息</p>
+        </header>
+        
+        <div class="controls">
+            <button id="generateBtn" class="btn">随机生成号码</button>
+            <div class="counter">
+                已显示: <span id="displayCount">0</span> 个号码
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table id="phoneTable">
+                <thead>
+                    <tr>
+                        <th>手机号码</th>
+                        <th>号码等级</th>
+                        <th>保底金额</th>
+                        <th>预存款</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- 数据将通过JavaScript动态填充 -->
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 40px; color: #666;">
+                            点击上方按钮随机生成手机号码数据
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="totalNumbers">0</div>
+                <div class="stat-label">总号码数</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="level0Count">0</div>
+                <div class="stat-label">普通号码</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="level1Count">0</div>
+                <div class="stat-label">一级号码</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="level2Count">0</div>
+                <div class="stat-label">二级号码</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="level3Count">0</div>
+                <div class="stat-label">三级号码</div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>手机号码随机展示系统 &copy; 2023</p>
+    </footer>
+
+    <script>
+        // 手机号码数据
+        const phoneData = [
+            { number: '13302429000', level: 2, minAmount: 200, prepay: 2000 },
+            { number: '13302429013', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429028', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429053', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429095', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429100', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429152', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429158', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429166', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429179', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429188', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429204', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429222', level: 2, minAmount: 200, prepay: 2000 },
+            { number: '13302429233', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429249', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429253', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429270', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429290', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429304', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429309', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429315', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429326', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429335', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429342', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429410', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429413', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429417', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429433', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429444', level: 2, minAmount: 200, prepay: 2000 },
+            { number: '13302429463', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429470', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429482', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429519', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429553', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429555', level: 2, minAmount: 200, prepay: 2000 },
+            { number: '13302429624', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429628', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429644', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429646', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429672', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429692', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429737', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429758', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429777', level: 2, minAmount: 200, prepay: 2000 },
+            { number: '13302429800', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429824', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429826', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429900', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302429911', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302429922', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302429933', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302429942', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429943', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429944', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302429955', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302429966', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302429977', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302429978', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302429988', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302429992', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811012', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811100', level: 2, minAmount: 200, prepay: 2000 },
+            { number: '13302811124', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811144', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811155', level: 2, minAmount: 200, prepay: 2000 },
+            { number: '13302811177', level: 2, minAmount: 200, prepay: 2000 },
+            { number: '13302811200', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811210', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811233', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811241', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811245', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811251', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811255', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811256', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811257', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811264', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811322', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811347', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811354', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811355', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811395', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811406', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811407', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811410', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811412', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811424', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811429', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811436', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811450', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811453', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811454', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811465', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811484', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811511', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811514', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811515', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811522', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811524', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811533', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811534', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811540', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811547', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811551', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811556', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811559', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811562', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811575', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811584', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811594', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811599', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811602', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811609', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811614', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811616', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811640', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811643', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811644', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811664', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811670', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811689', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811704', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811709', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811711', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811715', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811717', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811757', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811760', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811765', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811771', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811772', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811824', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811842', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811854', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811868', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811876', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811899', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811914', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811922', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811934', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811940', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811954', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811957', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811964', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811966', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811984', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811987', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302811994', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302811995', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816000', level: 3, minAmount: 350, prepay: 10000 },
+            { number: '13302816011', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816012', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816040', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816047', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816050', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816060', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816066', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816075', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816084', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816095', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816100', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816105', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816116', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816122', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816123', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816135', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816145', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816156', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816165', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816177', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816185', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816210', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816211', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816215', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816253', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816254', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816266', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816271', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816277', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816295', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816299', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816310', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816311', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816321', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816341', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816343', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816352', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816354', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816356', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816393', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816401', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816402', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816403', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816407', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816411', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816417', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816444', level: 2, minAmount: 200, prepay: 2000 },
+            { number: '13302816445', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816447', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816453', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816466', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816470', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816471', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816477', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816478', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816512', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816517', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816520', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816525', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816529', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816537', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816543', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816550', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816552', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816556', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816562', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816565', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816566', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816567', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816582', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816583', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816589', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816590', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816597', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816604', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816611', level: 2, minAmount: 200, prepay: 2000 },
+            { number: '13302816615', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816629', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816654', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816655', level: 2, minAmount: 200, prepay: 2000 },
+            { number: '13302816665', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816714', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816722', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816755', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816765', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816766', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816776', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816784', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816799', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816804', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816854', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816855', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816858', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816876', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816878', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816898', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816900', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302816914', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816916', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816924', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816942', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816947', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816952', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816964', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302816994', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817012', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817027', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817029', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817033', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817043', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817050', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817054', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817056', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817058', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817067', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817071', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817072', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817074', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817075', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817081', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817084', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817094', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817097', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817100', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817109', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817113', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817122', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817123', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817124', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817140', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817145', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817146', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817154', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817155', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817164', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817166', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817179', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817195', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817199', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817210', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817211', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817224', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817237', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817245', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817246', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817247', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817257', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817266', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817284', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817314', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817315', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817320', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817322', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817331', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817336', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817337', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817343', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817346', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817349', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817357', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817373', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817395', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817399', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817416', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817432', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817444', level: 2, minAmount: 200, prepay: 2000 },
+            { number: '13302817447', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817478', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817481', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817488', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817490', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817495', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817500', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817511', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817525', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817534', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817537', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817541', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817545', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817556', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817557', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817562', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817564', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817566', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817570', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817574', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817577', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817588', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817595', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817597', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817599', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817600', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817604', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817610', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817622', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817638', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817644', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817654', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817655', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817667', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817676', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817677', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817678', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817684', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817699', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817704', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817722', level: 2, minAmount: 200, prepay: 2000 },
+            { number: '13302817730', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817734', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817737', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817741', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817742', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817744', level: 1, minAmount: 100, prepay: 1000 },
+            { number: '13302817745', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817746', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817755', level: 2, minAmount: 200, prepay: 2000 },
+            { number: '13302817764', level: 0, minAmount: 0, prepay: 0 },
+            { number: '13302817765', level: 1, minAmount: 100, prepay: 1000 }
+        ];
+
+        // DOM元素
+        const generateBtn = document.getElementById('generateBtn');
+        const tableBody = document.getElementById('tableBody');
+        const displayCount = document.getElementById('displayCount');
+        const totalNumbers = document.getElementById('totalNumbers');
+        const level0Count = document.getElementById('level0Count');
+        const level1Count = document.getElementById('level1Count');
+        const level2Count = document.getElementById('level2Count');
+        const level3Count = document.getElementById('level3Count');
+
+        // 初始化统计信息
+        totalNumbers.textContent = phoneData.length;
+        
+        // 计算各等级号码数量
+        const levelCounts = [0, 0, 0, 0];
+        phoneData.forEach(item => {
+            if (item.level >= 0 && item.level <= 3) {
+                levelCounts[item.level]++;
+            }
+        });
+        
+        level0Count.textContent = levelCounts[0];
+        level1Count.textContent = levelCounts[1];
+        level2Count.textContent = levelCounts[2];
+        level3Count.textContent = levelCounts[3];
+        
+        // 显示计数
+        let count = 0;
+        
+        // 生成随机手机号码
+        function generateRandomNumbers() {
+            // 清空表格
+            tableBody.innerHTML = '';
+            
+            // 随机选择10个不重复的号码
+            const shuffled = [...phoneData].sort(() => 0.5 - Math.random());
+            const selected = shuffled.slice(0, 10);
+            
+            // 更新计数
+            count += 10;
+            displayCount.textContent = count;
+            
+            // 添加到表格
+            selected.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = `level-${item.level}`;
+                
+                // 号码格式化为133-0242-9000
+                const formattedNumber = item.number.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+                
+                row.innerHTML = `
+                    <td class="number-cell">${formattedNumber}</td>
+                    <td><span class="level-badge">${getLevelText(item.level)}</span></td>
+                    <td>${item.minAmount ? '¥' + item.minAmount : '无'}</td>
+                    <td>${item.prepay ? '¥' + item.prepay : '无'}</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // 获取等级文本
+        function getLevelText(level) {
+            switch(level) {
+                case 0: return '普通';
+                case 1: return '一级';
+                case 2: return '二级';
+                case 3: return '三级';
+                default: return '未知';
+            }
+        }
+        
+        // 添加按钮点击事件
+        generateBtn.addEventListener('click', generateRandomNumbers);
+        
+        // 页面加载时生成一次
+        window.addEventListener('load', generateRandomNumbers);
+    </script>
+</body>
+</html>
